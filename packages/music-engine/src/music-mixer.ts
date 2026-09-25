@@ -1,0 +1,2 @@
+import type{MusicConfig}from'./types.js';import{DuckingController}from'./ducking-controller.js';
+export class MusicMixer {readonly ducking:DuckingController;constructor(config:MusicConfig,now=()=>Date.now()){this.ducking=new DuckingController(config,now)}speechStarted(){return this.ducking.duckForVoice()}speechFinished(){return this.ducking.restoreMusic()}getLevels(){return this.ducking.getState()}}

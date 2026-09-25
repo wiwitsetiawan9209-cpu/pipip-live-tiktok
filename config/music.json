@@ -1,0 +1,13 @@
+{
+  "directories": [],
+  "lyricsDirectory": "",
+  "extensions": [".mp3", ".wav", ".m4a", ".ogg"],
+  "maxFileBytes": 1073741824,
+  "backgroundMusicLevel": 0.58,
+  "musicDuringSpeech": 0.12,
+  "fadeDurationMs": 500,
+  "fullSongEnabled": true,
+  "loopBackground": false,
+  "maxRetries": 2,
+  "watchdogGraceMs": 5000
+}

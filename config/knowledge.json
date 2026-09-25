@@ -1,0 +1,10 @@
+{
+  "primary": "ollama",
+  "externalExperts": {
+    "enabled": false,
+    "geminiModel": "gemini-3.8-flash",
+    "openaiModel": "gpt-5-mini",
+    "timeoutMs": 12000,
+    "confidenceThreshold": 0.65
+  }
+}

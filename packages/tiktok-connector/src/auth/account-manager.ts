@@ -1,0 +1,2 @@
+import type {TikTokAccount} from '../types.js';
+export function toTikTokAccount(input:{connectionId:string;openId:string;displayName:string|null;avatarUrl:string|null;scopes:string[];connectedAt:number;lastValidatedAt:number}):TikTokAccount{return{connectionId:input.connectionId,openId:input.openId,displayName:input.displayName,avatarUrl:input.avatarUrl,scopes:[...new Set(input.scopes)].sort(),connectedAt:input.connectedAt,lastValidatedAt:input.lastValidatedAt}}

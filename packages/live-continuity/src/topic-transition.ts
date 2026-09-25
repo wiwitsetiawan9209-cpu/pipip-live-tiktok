@@ -1,0 +1,3 @@
+import type {TopicTransitionContext} from './types.js';
+const intents:Record<string,TopicTransitionContext['intent']>={'PRODUCT>MUSIC':'bridge_to_music','MUSIC>PRODUCT':'bridge_to_product','PRODUCT>TOPIC':'bridge_to_topic','TOPIC>PRODUCT':'bridge_to_product','AUDIENCE>PRODUCT':'bridge_to_product','AUDIENCE>MUSIC':'bridge_to_music','MUSIC>TOPIC':'return_to_previous_topic','AFTER_SONG>PRODUCT':'resume_after_song','AFTER_SONG>TOPIC':'resume_after_song'};
+export class TopicTransitionEngine {create(from:string,to:string,reason='show pacing'):TopicTransitionContext{return{from,to,intent:intents[`${from.toUpperCase()}>${to.toUpperCase()}`]??'bridge_to_topic',reason}}}

@@ -1,0 +1,6 @@
+import {randomBytes} from 'node:crypto';
+import {createPkce} from './pkce.js';
+import type {AuthorizationState} from '../types.js';
+export class AuthorizationStateManager {private pending:AuthorizationState|null=null;constructor(private readonly now=()=>Date.now(),private readonly ttlMs=300_000){}create(redirectUri:string,requestedScopes:string[]){if(this.pending&&!this.pending.consumed)throw new Error('Authorization already pending');const state=randomBytes(32).toString('base64url');const pkce=createPkce();this.pending={state,...pkce,redirectUri,requestedScopes:[...new Set(requestedScopes)],createdAt:this.now(),expiresAt:this.now()+this.ttlMs,consumed:false};return{...this.pending,requestedScopes:[...this.pending.requestedScopes]}}
+ consume(returnedState:string){const p=this.pending;if(!p||p.consumed||this.now()>p.expiresAt||!returnedState||returnedState!==p.state){if(p&&this.now()>p.expiresAt)this.pending=null;throw new Error('STATE_MISMATCH')}p.consumed=true;return{...p,requestedScopes:[...p.requestedScopes]}}
+ clear(){this.pending=null}snapshot(){if(this.pending&&this.now()>this.pending.expiresAt)this.pending=null;return this.pending?{createdAt:this.pending.createdAt,expiresAt:this.pending.expiresAt,consumed:this.pending.consumed}:null}}

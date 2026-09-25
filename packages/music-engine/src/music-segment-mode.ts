@@ -1,0 +1,2 @@
+import type{MusicTrack}from'./types.js';import{MusicSegment}from'./music-segment.js';
+export class MusicSegmentMode {private active=false;constructor(private segment:MusicSegment){}start(track:MusicTrack){this.active=this.segment.start(track);return this.active}tick(){const result=this.segment.tick();if(result==='MUSIC_FINISHED')this.active=false;return result}stop(){this.active=false;return this.segment.stop()}isActive(){return this.active}getState(){return this.segment.getState()}}

@@ -1,0 +1,10 @@
+export type ShowActivity='OPENING'|'GREETING'|'PRODUCT_INTRO'|'PRODUCT_EDUCATION'|'AUDIENCE_INTERACTION'|'TOPIC'|'STORY'|'MUSIC_INTRO'|'MUSIC_SEGMENT'|'AFTER_SONG'|'CTA'|'TRANSITION'|'WAIT'|'FALLBACK';
+export type ShowActionType='SPEAK'|'PRODUCT'|'AUDIENCE'|'MUSIC'|'TOPIC'|'STORY'|'CTA'|'WAIT'|'TRANSITION'|'PRODUCT_EDUCATION'|'AFTER_SONG'|'FALLBACK';
+export type DeadAirStatus='NORMAL'|'PREPARING'|'WARNING'|'INTERVENTION_REQUIRED'|'EMERGENCY'|'EXEMPT_MUSIC'|'EXEMPT_PAUSED'|'EXEMPT_HUMAN_TAKEOVER';
+export interface ShowAction {id:string;type:ShowActionType;priority:number;createdAt:number;expiresAt:number;productId?:string;trackId?:string;topic?:string;reason?:string;payload?:Record<string,unknown>}
+export interface TimeAwareness {date:string;dayOfWeek:string;time:string;timezone:string;period:'MORNING'|'DAY'|'AFTERNOON'|'EVENING'|'NIGHT';sessionStartedAt:number;sessionDurationMs:number}
+export interface DeadAirInput {now:number;lastHostSpeechAt:number|null;lastAudienceEventAt:number|null;activity:ShowActivity;musicPlaying:boolean;speechInProgress:boolean;hostExpectedToSpeak:boolean;awaitingAudience:boolean;paused:boolean;stopped:boolean;humanTakeover:boolean}
+export interface ContinuityThresholds {prepareMs:number;warningMs:number;interventionMs:number;emergencyMs:number}
+export interface DirectorContext {now:number;activity:ShowActivity;recentActivities:ShowActivity[];recentTopics:string[];recentProducts:string[];pendingAudience:number;pendingActions:number;availableProductIds:string[];musicAvailable:boolean;musicPlaying:boolean;lastMusicAt:number|null;sessionDurationMs:number;timePeriod:TimeAwareness['period'];personality?:string;paused:boolean;humanTakeover:boolean;stopped:boolean;afterSongPending:boolean;operatorRequest?:ShowActionType}
+export interface TopicTransitionContext {from:string;to:string;intent:'bridge_to_music'|'bridge_to_product'|'bridge_to_topic'|'return_to_previous_topic'|'resume_after_song';reason:string}
+export interface ShowDirectorPort {onActivity?(activity:ShowActivity,at:number):void;selectNext?(context:DirectorContext):ShowAction;}

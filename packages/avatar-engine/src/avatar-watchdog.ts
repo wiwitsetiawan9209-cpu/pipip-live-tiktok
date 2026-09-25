@@ -1,0 +1,1 @@
+export class AvatarWatchdog {private lastProgressAt:number;constructor(private readonly timeoutMs=15000,private readonly now=()=>Date.now()){this.lastProgressAt=now()}beat(){this.lastProgressAt=this.now()}isStale(){return this.now()-this.lastProgressAt>this.timeoutMs}reset(){this.lastProgressAt=this.now()}}

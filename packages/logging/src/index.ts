@@ -1,0 +1,4 @@
+import type {StructuredLog} from '../../shared-types/src/index.js';
+const secretKey=/(?:api.?key|password|token|credential|secret|authorization)/i;
+function redact(v:unknown):unknown{if(Array.isArray(v))return v.map(redact);if(!v||typeof v!=='object')return v;return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,secretKey.test(k)?'[REDACTED]':redact(x)]))}
+export class Logger {private readonly entries:StructuredLog[]=[];constructor(private readonly sink:(e:StructuredLog)=>void=e=>console.log(JSON.stringify(e))){}log(level:StructuredLog['level'],component:string,event:string,payload:Record<string,unknown>={}):StructuredLog{const entry={timestamp:new Date().toISOString(),level,component,event,payload:redact(payload) as Record<string,unknown>};this.entries.push(entry);this.sink(entry);return entry}recent(limit=100){return this.entries.slice(-limit).reverse()}}

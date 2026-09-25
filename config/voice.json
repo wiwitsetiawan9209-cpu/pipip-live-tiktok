@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "provider": "windows-onecore",
+  "language": "id-ID",
+  "voice": "auto",
+  "speed": 1,
+  "pitch": 0,
+  "volume": 1,
+  "requestTtlMs": 60000,
+  "maxQueueSize": 40,
+  "maxRetries": 1,
+  "synthesisTimeoutMs": 30000,
+  "cacheEnabled": true,
+  "cacheMaxEntries": 200
+}

@@ -1,0 +1,22 @@
+import { afterEach, describe, expect, it } from 'vitest';
+import { DatabaseSync } from 'node:sqlite';
+import { ProductCatalog, ProductClaimPolicy, ProductContextBuilder, ProductSchema, ProductSelector, SalesStrategyEngine, SQLiteProductRepository } from '../packages/product-engine/src/index.js';
+import { initializeDatabase } from '../apps/desktop/src/main/database.js';
+
+let db: DatabaseSync | undefined;
+const fixture=(overrides:Record<string,unknown>={})=>ProductSchema.parse({id:'P007',name:'Pipip Mug',category:'drinkware',price:120,currency:'IDR',promoPrice:null,description:'Ceramic mug',benefits:['Easy to clean'],specifications:['Ceramic body'],variants:['Blue'],stock:8,images:[],status:'ACTIVE',sellingPoints:['Daily use'],targetAudience:['coffee fans'],preferredTalkingPoints:['A simple daily mug'],forbiddenClaims:['unbreakable'],priority:50,...overrides});
+const makeCatalog=()=>{db=initializeDatabase(':memory:');return new ProductCatalog(new SQLiteProductRepository(db,()=> '2026-09-25T00:00:00.000Z'));};
+afterEach(()=>{db?.close();db=undefined;});
+
+describe('Phase 2 product engine',()=>{
+ it('validates product values and rejects contradictory promotions',()=>{expect(()=>ProductSchema.parse({id:'',name:'x'})).toThrow();expect(()=>fixture({price:100,promoPrice:101})).toThrow();});
+ it('loads and searches products from the application SQLite catalog',()=>{const catalog=makeCatalog();catalog.save(fixture());catalog.save(fixture({id:'P008',name:'Travel Bottle',category:'drinkware'}));expect(catalog.list()).toHaveLength(2);expect(catalog.search('bottle').map(p=>p.id)).toEqual(['P008']);});
+ it('roundtrips product knowledge while preserving legacy schema columns',()=>{const catalog=makeCatalog();catalog.save(fixture());expect(catalog.get('P007')?.specifications).toEqual(['Ceramic body']);expect(catalog.get('P007')?.price).toBe(120);});
+ it('filters inactive and out-of-stock products from active products',()=>{const catalog=makeCatalog();catalog.save(fixture());catalog.save(fixture({id:'P008',status:'INACTIVE'}));catalog.save(fixture({id:'P009',stock:0}));expect(catalog.active().map(p=>p.id)).toEqual(['P007']);});
+ it('selects autonomously based on relevance, promotion, and priority',()=>{const catalog=makeCatalog();catalog.save(fixture());catalog.save(fixture({id:'P008',name:'Tea Set',category:'kitchen',promoPrice:80,priority:30,targetAudience:[],sellingPoints:[],preferredTalkingPoints:[]}));const decision=new ProductSelector(catalog).select({conversation:'coffee fans ask about daily mug'});expect(decision?.productId).toBe('P007');expect(decision?.strategy).toBe('PRODUCT_INTRO');});
+ it('rotates away from a recently mentioned product and returns after cooldown',()=>{const catalog=makeCatalog();catalog.save(fixture());catalog.save(fixture({id:'P008',name:'Tea Set'}));let now=1_000_000;const selector=new ProductSelector(catalog,180_000,()=>now);expect(selector.select({conversation:''})?.productId).toBe('P007');expect(selector.select({conversation:''})?.productId).toBe('P008');now+=181_000;expect(selector.select({conversation:''})?.productId).toBe('P007');});
+ it('builds context only for available verified catalog products',()=>{const builder=new ProductContextBuilder();const verified=builder.build(fixture());expect(verified.id).toBe('P007');expect(verified.specifications).toEqual(['Ceramic body']);expect(()=>builder.build(fixture({stock:0}))).toThrow();});
+ it('filters forbidden claims and unsupported price, discount, guarantee, and review facts',()=>{const policy=new ProductClaimPolicy();const p=new ProductContextBuilder().build(fixture());expect(policy.validate('Mug ini unbreakable.',p).ok).toBe(false);expect(policy.validate('Harganya hanya 80 ribu.',p).ok).toBe(false);expect(policy.validate('Diskon 50% hari ini.',p).ok).toBe(false);expect(policy.validate('Dijamin nomor satu dan sudah terjual 300.',p).ok).toBe(false);expect(policy.validate('Mug dengan ceramic body, harga 120 IDR.',p).ok).toBe(true);});
+ it('creates non-repetitive strategy stages and does not force a sales funnel',()=>{const engine=new SalesStrategyEngine();const p=fixture({promoPrice:90});expect(engine.plan(p,{conversation:'berapa harganya'}).stage).toBe('PRICE');expect(engine.plan(p).stage).toBe('HOOK');expect(engine.plan(p).talkingPoint).toBe('A simple daily mug');});
+ it('rejects persistence of invalid products',()=>{const catalog=makeCatalog();expect(()=>catalog.save({id:'P',name:'Bad',price:-1})).toThrow();});
+});

@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "outputDevice": "default",
+  "masterVolume": 1,
+  "voiceVolume": 1,
+  "musicVolume": 0.58,
+  "maxAssetBytes": 50000000,
+  "ducking": {
+    "enabled": true,
+    "musicLevelDuringVoice": 0.18,
+    "attackMs": 150,
+    "releaseMs": 500,
+    "fadeDurationMs": 200,
+    "minimumMusicLevel": 0
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "ai-live-commerce-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "build-electron/main.mjs",
+  "workspaces": [
+    "apps/desktop",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:vite\" \"npm:dev:electron\"",
+    "dev:vite": "vite apps/desktop --config apps/desktop/vite.config.ts",
+    "dev:electron": "node scripts/build-electron.mjs && wait-on tcp:5173 && set VITE_DEV_SERVER_URL=http://127.0.0.1:5173&& electron .",
+    "build": "npm run typecheck && node scripts/build-electron.mjs && vite build apps/desktop --config apps/desktop/vite.config.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit --pretty",
+    "start": "npm run build && electron .",
+    "host:smoke": "esbuild scripts/host-smoke.ts --bundle --platform=node --format=esm --outfile=build-electron/host-smoke.mjs && node build-electron/host-smoke.mjs",
+    "ollama:diagnostic": "esbuild scripts/ollama-diagnostic.ts --bundle --platform=node --format=esm --outfile=build-electron/ollama-diagnostic.mjs && node build-electron/ollama-diagnostic.mjs",
+    "phase15a:rehearsal": "esbuild scripts/phase15a-production-rehearsal.ts --bundle --platform=node --format=esm --outfile=build-electron/phase15a-production-rehearsal.mjs && node build-electron/phase15a-production-rehearsal.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "concurrently": "^9.1.2",
+    "electron": "^44.4.5",
+    "esbuild": "^0.25.5",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^5.0.1",
+    "wait-on": "^8.0.3"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "^0.6.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.67"
+  }
+}

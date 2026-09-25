@@ -1,0 +1,2 @@
+export type WatchdogEvent='PROVIDER_FAILURE'|'QUEUE_STALLED'|'SCHEDULER_STALLED'|'STATE_INCONSISTENT';
+export class ContinuityWatchdog {private failures=0;constructor(private maxFailures=3){}observe(event:WatchdogEvent){if(event==='PROVIDER_FAILURE'||event==='QUEUE_STALLED'||event==='SCHEDULER_STALLED'||event==='STATE_INCONSISTENT')this.failures++;return{event,failures:this.failures,emergency:this.failures>=this.maxFailures}}reset(){this.failures=0}getFailureCount(){return this.failures}}

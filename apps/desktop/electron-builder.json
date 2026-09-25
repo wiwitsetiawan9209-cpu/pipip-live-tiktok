@@ -1,0 +1,7 @@
+{
+  "appId": "studio.pipip.ai-live-commerce",
+  "productName": "AI Live Commerce Studio",
+  "directories": { "output": "release" },
+  "files": ["build-electron/**/*", "apps/desktop/dist/**/*", "config/**/*", "data/prompts/**/*", "package.json"],
+  "win": { "target": ["nsis"] }
+}
